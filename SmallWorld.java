@@ -2,8 +2,8 @@
  *
  * CS61C Spring 2013 Project 2: Small World
  *
- * Partner 1 Name:
- * Partner 1 Login:
+ * Partner 1 Name: Jene Li
+ * Partner 1 Login: cs61c-ip
  *
  * Partner 2 Name:
  * Partner 2 Login:

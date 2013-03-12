@@ -43,7 +43,7 @@ This gets rid of the unnecessary data
 *	Input: (distance, [1's])  
 *	Output: (distance, frequency of distance)  
 
-### To Do List
+## To Do List
 *	Graph Loading **not done**  
 *	BFS **not done**  
 *	Histogram **done**  

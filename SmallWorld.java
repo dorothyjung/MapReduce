@@ -189,16 +189,16 @@ public class SmallWorld {
             // You can print it out by uncommenting the following line:
             // System.out.println(denom);
 
-            String valueString = new String();
+            //String valueString = new String();
             ArrayList<Long> valueList = new ArrayList<Long>();
             ArrayList<Long> keyList = new ArrayList<Long>();
             keylist.add(key.get());
             longArrayList.add(NEW_VERTEX);
             for (LongWritable value : values){            
                 longArrayList.add(value.get());
-                valueString = valueString + Long.toString(value.get()) + ",";
+                //valueString = valueString + Long.toString(value.get()) + ",";
             }
-            context.getConfiguration().set(VERTEX_DESTINATION + Long.toString(key.get()), valueString);
+            //context.getConfiguration().set(VERTEX_DESTINATION + Long.toString(key.get()), valueString);
             context.write(new LongArrayListWritable(keyList.size(), keyList), new LongArrayListWritable(valueList.size(), valueList));
         }
 

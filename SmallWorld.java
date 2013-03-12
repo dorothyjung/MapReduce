@@ -5,8 +5,8 @@
  * Partner 1 Name: Jene Li
  * Partner 1 Login: cs61c-ip
  *
- * Partner 2 Name:
- * Partner 2 Login:
+ * Partner 2 Name: Yoonjung Dorothy Jung
+ * Partner 2 Login: cs61c-kb
  *
  * REMINDERS: 
  *

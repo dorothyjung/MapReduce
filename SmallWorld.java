@@ -43,6 +43,8 @@ import org.apache.hadoop.util.GenericOptionsParser;
 public class SmallWorld {
     // Maximum depth for any breadth-first search
     public static final int MAX_ITERATIONS = 20;
+    // Marker for initial search vertex
+    private static final long NEW_VERTEX = -1L
 
     // Example writable type
     public static class EValue implements Writable {
@@ -107,7 +109,7 @@ public class SmallWorld {
 
     }
 
-    /* Writable LongArray */
+    /* Writable LongArrayList */
     public class LongArrayListWritable extends Writable {
         public int length;
         public int ArrayList<Long> array;
@@ -124,9 +126,31 @@ public class SmallWorld {
         pubic void write(DataOutput out) throws IOException {
             int length = 0;
             if (array != null) {
-
+                length = array.size();
+            }
+            out.writeInt(length);
+            for (int i = 0; i < length; i++) {
+                out.writeLong(array.get(i));
             }
         }
+
+        public void readFields(DataInput in) throws IOException {
+            int length = in.readInt();
+            array = new ArrayList<Long>(length);
+            for(int i = 0; i < length; i++) {
+                array.add(i, in.readLong());
+            }
+        }
+
+        public String toString() {
+            String output = "[";
+            for (Long i : array) {
+                output = output + i + ", ";
+            }
+            output = output + "]";
+            return output;
+        }
+
     }
 
     /* The first mapper. Part of the graph loading process, currently just an 

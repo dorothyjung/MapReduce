@@ -4,19 +4,19 @@ MapReduce
 ## Graph Loading
 ### LoadMap
 *Input: (source, destination)  
-** Size: number of edges
+    * Size: number of edges
 *Output: (source, destination)   
-** Size: number of edges
+    * Size: number of edges
 This is just an identity mapper.
 
 ### LoadReduce
 *Input: (source, [destination])  
-** Size: number of vertices
+    * Size: number of vertices
 *Output: (source, [destinations])  
-** Size: number of vertices
+    * Size: number of vertices
 
 ## BFS
-### BFSMap
+### BFSMap  
 *Input: ??  
 *Output: ([source, destination], distance)  
 This outputs every path we find for a (source, destination) pair.

@@ -19,6 +19,7 @@ This is just an identity mapper.
 ### BFSMap  
 *	Input: ([source, dest], [distance]) or ([source], [-1, nodes])  
 *	Output: ([source, destination], distance)  
+
 > if value = -1:  
 >	split [source], [-1, nodes] into multiple ([source, dest], 1) pairs  
 >	create ([source], 0) as a marker  
@@ -36,6 +37,7 @@ This takes all the paths and outputs the shortest path for each (source, destina
 *	Input: ([source, destination], shortest distance)  
 *	Output: (distance, 1)  
 This gets rid of the unnecessary data  
+
 ### HistogramReduce
 *	Input: (distance, [1's])  
 *	Output: (distance, frequency of distance)  

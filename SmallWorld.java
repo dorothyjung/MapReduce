@@ -44,7 +44,9 @@ public class SmallWorld {
     // Maximum depth for any breadth-first search
     public static final int MAX_ITERATIONS = 20;
     // Marker for initial search vertex
-    private static final long NEW_VERTEX = -1L
+    private static final long NEW_VERTEX = -1L;
+    // Indicator for vertex destinations
+    private static final String VERTEX_DESTINATION = "vertexGraph";
 
     // Example writable type
     public static class EValue implements Writable {
@@ -187,13 +189,16 @@ public class SmallWorld {
             // You can print it out by uncommenting the following line:
             // System.out.println(denom);
 
+            String valueString = new String();
             ArrayList<Long> valueList = new ArrayList<Long>();
+            ArrayList<Long> keyList = new ArrayList<Long>();
+            keylist.add(key.get());
             longArrayList.add(NEW_VERTEX);
             for (LongWritable value : values){            
                 longArrayList.add(value.get());
+                valueString = valueString + Long.toString(value.get()) + ",";
             }
-            ArrayList<Long> keyList = new ArrayList<Long>();
-            keylist.add(key.get());
+            context.getConfiguration().set(VERTEX_DESTINATION + Long.toString(key.get()), valueString);
             context.write(new LongArrayListWritable(keyList.size(), keyList), new LongArrayListWritable(valueList.size(), valueList));
         }
 
@@ -234,7 +239,7 @@ public class SmallWorld {
 
         public void reduce(LongArrayListWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
-	    //fixme
+	    //afixme
             for (LongWritable value : values){            
                 context.write(key, value);
             }

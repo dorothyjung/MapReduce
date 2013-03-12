@@ -156,8 +156,44 @@ public class SmallWorld {
     // ------- Add your additional Mappers and Reducers Here ------- //
 
 
+    /* The BFS mapper. Determines which nodes to inspect with probability 1/denorm.
+     * Takes in (source, [destinations]) pairs and finds the distance from inspected node
+     * to other vertices in the graph. */
+    public static class BFSMap extends Mapper<LongWritable, LongWritable, 
+        LongWritable, LongWritable> {
+
+        @Override
+        public void map(LongWritable key, LongWritable value, Context context)
+                throws IOException, InterruptedException {
+	    //do this for the first time ONLY
+	    public long denom;
+            denom = Long.parseLong(context.getConfiguration().get("denom"));
+	    private double ref = Math.random();
+	    private double prob = (double) 1 / denom;
+	    if (ref < prob) {
+		//perform op
+		context.write(key, value);
+	    }
+        }
+    }
 
 
+    /* The BFS reducer. Takes in ([source,dest], distance) pairs and returns 1
+     * pair ([source,dest], shortest distance). */
+    public static class BFSReduce extends Reducer<LongWritable, LongWritable, 
+        LongWritable, LongWritable> {
+
+        public long denom;
+
+        public void reduce(LongWritable key, Iterable<LongWritable> values, 
+            Context context) throws IOException, InterruptedException {
+	    //fixme
+            for (LongWritable value : values){            
+                context.write(key, value);
+            }
+        }
+
+    }
 
 
     /* The last mapper. Maps each distance from input to 1. */
@@ -177,7 +213,7 @@ public class SmallWorld {
     public static class HistoReduce extends Reducer<LongWritable, LongWritable, 
         LongWritable, LongWritable> {
 
-        public void reduce(LongWritable key, Iterable<LongWritable> va           lues, 
+        public void reduce(LongWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
           
 	    int sum = 0;
@@ -248,8 +284,8 @@ public class SmallWorld {
 
             // You'll want to modify the following based on what you call
             // your mapper and reducer classes for the BFS phase.
-            job.setMapperClass(Mapper.class); // currently the default Mapper
-            job.setReducerClass(Reducer.class); // currently the default Reducer
+            job.setMapperClass(BFSMap.class); // currently the default Mapper
+            job.setReducerClass(BFSReduce.class); // currently the default Reducer
 
             job.setInputFormatClass(SequenceFileInputFormat.class);
             job.setOutputFormatClass(SequenceFileOutputFormat.class);
@@ -276,8 +312,8 @@ public class SmallWorld {
 
         // You'll want to modify the following based on what you call your
         // mapper and reducer classes for the Histogram Phase
-        job.setMapperClass(Mapper.class); // currently the default Mapper
-        job.setReducerClass(Reducer.class); // currently the default Reducer
+        job.setMapperClass(HistoMap.class); // currently the default Mapper
+        job.setReducerClass(HistoReduce.class); // currently the default Reducer
 
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);

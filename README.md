@@ -21,12 +21,14 @@ We should also store (vertex, nodes) pairs in the Configuration object for all B
 *	Input: ([source, dest], [distance]) or ([source], [-1, nodes])  
 *	Output: ([source, destination], distance)  
 
-	if value = -1:
-		split [source], [-1, nodes] into multiple ([source, dest], 1) pairs
-		create ([source], 0) as a marker
-	else:
-		advance node to next level
-		get nodes(dest) from graph in config
+<pre><code>
+	if value = -1:  
+		split [source], [-1, nodes] into multiple ([source, dest], 1) pairs  
+		create ([source], 0) as a marker  
+	else:  
+		advance node to next level  
+		get nodes(dest) from graph in config  
+</code></pre>
 
 
 ### BFSReduce

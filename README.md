@@ -3,23 +3,23 @@ MapReduce
 
 ## Graph Loading
 ### LoadMap
-*	Input: (source, destination)  
+*	**Input**: (source, destination)  
     *	Size: number of edges  
-*	Output: (source, destination)   
+*	**Output**: (source, destination)   
     *	Size: number of edges  
 This is just an identity mapper.  
 
 ### LoadReduce
-*	Input: (source, [destination])  
+*	**Input**: (source, [destination])  
     *	Size: number of vertices  
-*	Output: ([source], [-1,nodes])  
+*	**Output**: ([source], [-1,nodes])  
     *	Size: number of vertices  
 We should also store (vertex, nodes) pairs in the Configuration object for all BFSMappers to use.  
 
 ## BFS
 ### BFSMap  
-*	Input: ([source, dest], [distance]) or ([source], [-1, nodes])  
-*	Output: ([source, destination], distance)  
+*	**Input**: ([source, dest], [distance]) or ([source], [-1, nodes])  
+*	**Output**: ([source, destination], distance)  
 <pre><code>
 	if value = -1:  
 		split [source], [-1, nodes] into multiple ([source, dest], 1) pairs  
@@ -31,22 +31,22 @@ We should also store (vertex, nodes) pairs in the Configuration object for all B
 
 
 ### BFSReduce
-*	Input: ([source, destination], [distances])  
-*	Output: ([source, destination], shortest distance)  
+*	**Input**: ([source, destination], [distances])  
+*	**Output**: ([source, destination], shortest distance)  
 This takes all the paths and outputs the shortest path for each (source, destination) pair.  
 
 ## Histogram
 ### HistogramMap
-*	Input: ([source, destination], shortest distance)  
-*	Output: (distance, 1)  
+*	**Input**: ([source, destination], shortest distance)  
+*	**Output**: (distance, 1)  
 This gets rid of the unnecessary data  
 
 ### HistogramReduce
-*	Input: (distance, [1's])  
-*	Output: (distance, frequency of distance)  
+*	**Input**: (distance, [1's])  
+*	**Output**: (distance, frequency of distance)  
 
 ## To Do List
-*	Graph Loading **not done**  
+*	Graph Loading **done**  
 *	BFS **not done**  
 *	Histogram **done**  
 

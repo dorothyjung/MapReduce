@@ -160,6 +160,34 @@ public class SmallWorld {
 
 
 
+    /* The last mapper. Maps each distance from input to 1. */
+    public static class HistoMap extends Mapper<LongWritable, LongWritable, 
+        LongWritable, LongWritable> {
+
+        @Override
+        public void map(LongWritable key, LongWritable value, Context context)
+                throws IOException, InterruptedException {
+            context.write(value, 1);
+        }
+    }
+
+
+    /* The histogram reducer. Adds up the number of occurrences of each distance.  
+     */
+    public static class HistoReduce extends Reducer<LongWritable, LongWritable, 
+        LongWritable, LongWritable> {
+
+        public void reduce(LongWritable key, Iterable<LongWritable> va           lues, 
+            Context context) throws IOException, InterruptedException {
+          
+	    int sum = 0;
+            for (LongWritable value : values){       
+		sum += value;
+	    }
+	    context.write(key, value);
+        }
+
+    }
 
 
 

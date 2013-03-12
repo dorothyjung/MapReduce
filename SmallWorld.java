@@ -107,6 +107,27 @@ public class SmallWorld {
 
     }
 
+    /* Writable LongArray */
+    public class LongArrayListWritable extends Writable {
+        public int length;
+        public int ArrayList<Long> array;
+
+        public LongArrayListWritable(int length, ArrayList<Long> array) {
+            this.length = length;
+            this.array = array;
+        }
+
+        public LongArrayListWritable() {
+
+        }
+
+        pubic void write(DataOutput out) throws IOException {
+            int length = 0;
+            if (array != null) {
+
+            }
+        }
+    }
 
     /* The first mapper. Part of the graph loading process, currently just an 
      * identity function. Modify as you wish. */
@@ -118,9 +139,7 @@ public class SmallWorld {
                 throws IOException, InterruptedException {
 
             // example of getting value passed from main
-            int inputValue = Integer.parseInt(context.getConfiguration().get("inputValue"));
-
-
+            //int inputValue = Integer.parseInt(context.getConfiguration().get("inputValue"));
             context.write(key, value);
         }
     }
@@ -139,14 +158,15 @@ public class SmallWorld {
         public void reduce(LongWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
             // We can grab the denom field from context: 
-            denom = Long.parseLong(context.getConfiguration().get("denom"));
+            //denom = Long.parseLong(context.getConfiguration().get("denom"));
 
             // You can print it out by uncommenting the following line:
             // System.out.println(denom);
 
-            // Example of iterating through an Iterable
+            LongArrayWritable writableArray = new LongArrayWritable();
+            LongWritable[] array = new LongWritable[];
             for (LongWritable value : values){            
-                context.write(key, value);
+
             }
         }
 
@@ -276,8 +296,8 @@ public class SmallWorld {
 
         // You'll want to modify the following based on what you call your
         // mapper and reducer classes for the Histogram Phase
-        job.setMapperClass(Mapper.class); // currently the default Mapper
-        job.setReducerClass(Reducer.class); // currently the default Reducer
+        job.setMapperClass(HistoMap.class); // currently the default Mapper
+        job.setReducerClass(HistoReduce.class); // currently the default Reducer
 
         job.setInputFormatClass(SequenceFileInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);

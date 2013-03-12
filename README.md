@@ -12,14 +12,20 @@ This is just an identity mapper.
 ### LoadReduce
 *Input: (source, [destination])  
     * Size: number of vertices  
-*Output: (source, [destinations])  
+*Output: ([source], [-1,nodes])  
     * Size: number of vertices  
 
 ## BFS
 ### BFSMap  
-*Input: ??  
+*Input: ([source, dest], [distance]) or ([source], [-1, nodes])  
 *Output: ([source, destination], distance)  
-This outputs every path we find for a (source, destination) pair.  
+if value = -1:
+	split [source], [-1, nodes] into multiple ([source, dest], 1) pairs
+	create ([source], 0) as a marker
+else:
+	advance node to next level
+	get nodes(dest) from graph in config 
+
 ### BFSReduce
 Input: ([source, destination], [distances])  
 Output: ([source, destination], shortest distance)  

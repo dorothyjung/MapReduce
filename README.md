@@ -20,7 +20,6 @@ We should also store (vertex, nodes) pairs in the Configuration object for all B
 ### BFSMap  
 *	Input: ([source, dest], [distance]) or ([source], [-1, nodes])  
 *	Output: ([source, destination], distance)  
-
 <pre><code>
 	if value = -1:  
 		split [source], [-1, nodes] into multiple ([source, dest], 1) pairs  
@@ -53,9 +52,9 @@ This gets rid of the unnecessary data
 
 ## Git Help
 1.	Check for updated items.  
-    git pull  
+    <pre><code>git pull</code></pre>  
 2.	Make changes  
 3.	Commit changes  
-    git commit -am 'message'  
+    <pre><code>git commit -am 'message'</code></pre>    
 4.	Push changes  
-    git push  
+    <pre><code>git push</code></pre>  

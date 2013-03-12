@@ -14,7 +14,7 @@ This is just an identity mapper.
     *	Size: number of vertices  
 *	Output: ([source], [-1,nodes])  
     *	Size: number of vertices  
-
+We should also store (vertex, nodes) pairs in the Configuration object for all BFSMappers to use.
 ## BFS
 ### BFSMap  
 *	Input: ([source, dest], [distance]) or ([source], [-1, nodes])  

@@ -43,6 +43,10 @@ import org.apache.hadoop.util.GenericOptionsParser;
 public class SmallWorld {
     // Maximum depth for any breadth-first search
     public static final int MAX_ITERATIONS = 20;
+    // Marker for initial search vertex
+    private static final long NEW_VERTEX = -1L;
+    // Indicator for vertex destinations
+    private static final String VERTEX_DESTINATION = "vertexGraph";
 
     // Example writable type
     public static class EValue implements Writable {
@@ -107,7 +111,7 @@ public class SmallWorld {
 
     }
 
-    /* Writable LongArray */
+    /* Writable LongArrayList */
     public class LongArrayListWritable extends Writable {
         public int length;
         public int ArrayList<Long> array;
@@ -124,9 +128,31 @@ public class SmallWorld {
         pubic void write(DataOutput out) throws IOException {
             int length = 0;
             if (array != null) {
-
+                length = array.size();
+            }
+            out.writeInt(length);
+            for (int i = 0; i < length; i++) {
+                out.writeLong(array.get(i));
             }
         }
+
+        public void readFields(DataInput in) throws IOException {
+            int length = in.readInt();
+            array = new ArrayList<Long>(length);
+            for(int i = 0; i < length; i++) {
+                array.add(i, in.readLong());
+            }
+        }
+
+        public String toString() {
+            String output = "[";
+            for (Long i : array) {
+                output = output + i + ", ";
+            }
+            output = output + "]";
+            return output;
+        }
+
     }
 
     /* The first mapper. Part of the graph loading process, currently just an 
@@ -151,7 +177,7 @@ public class SmallWorld {
      * and using the denom field.  
      */
     public static class LoaderReduce extends Reducer<LongWritable, LongWritable, 
-        LongWritable, LongWritable> {
+        LongArrayListWritable, LongArrayListWritable> {
 
         public long denom;
 
@@ -163,11 +189,17 @@ public class SmallWorld {
             // You can print it out by uncommenting the following line:
             // System.out.println(denom);
 
-            LongArrayWritable writableArray = new LongArrayWritable();
-            LongWritable[] array = new LongWritable[];
+            //String valueString = new String();
+            ArrayList<Long> valueList = new ArrayList<Long>();
+            ArrayList<Long> keyList = new ArrayList<Long>();
+            keylist.add(key.get());
+            longArrayList.add(NEW_VERTEX);
             for (LongWritable value : values){            
-
+                longArrayList.add(value.get());
+                //valueString = valueString + Long.toString(value.get()) + ",";
             }
+            //context.getConfiguration().set(VERTEX_DESTINATION + Long.toString(key.get()), valueString);
+            context.write(new LongArrayListWritable(keyList.size(), keyList), new LongArrayListWritable(valueList.size(), valueList));
         }
 
     }
@@ -179,11 +211,11 @@ public class SmallWorld {
     /* The BFS mapper. Determines which nodes to inspect with probability 1/denorm.
      * Takes in (source, [destinations]) pairs and finds the distance from inspected node
      * to other vertices in the graph. */
-    public static class BFSMap extends Mapper<LongWritable, LongWritable, 
-        LongWritable, LongWritable> {
+    public static class BFSMap extends Mapper<LongArrayListWritable, LongArrayListWritable, 
+        LongArrayListWritable, LongWritable> {
 
         @Override
-        public void map(LongWritable key, LongWritable value, Context context)
+        public void map(LongArrayListWritable key, LongArrayListWritable value, Context context)
                 throws IOException, InterruptedException {
 	    //do this for the first time ONLY
 	    public long denom;
@@ -200,14 +232,14 @@ public class SmallWorld {
 
     /* The BFS reducer. Takes in ([source,dest], distance) pairs and returns 1
      * pair ([source,dest], shortest distance). */
-    public static class BFSReduce extends Reducer<LongWritable, LongWritable, 
-        LongWritable, LongWritable> {
+    public static class BFSReduce extends Reducer<LongArrayListWritable, LongWritable, 
+        LongArrayListWritable, LongArrayListWritable> {
 
         public long denom;
 
-        public void reduce(LongWritable key, Iterable<LongWritable> values, 
+        public void reduce(LongArrayListWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
-	    //fixme
+	    //afixme
             for (LongWritable value : values){            
                 context.write(key, value);
             }
@@ -217,11 +249,11 @@ public class SmallWorld {
 
 
     /* The last mapper. Maps each distance from input to 1. */
-    public static class HistoMap extends Mapper<LongWritable, LongWritable, 
+    public static class HistoMap extends Mapper<LongArrayListWritable, LongArrayListWritable, 
         LongWritable, LongWritable> {
 
         @Override
-        public void map(LongWritable key, LongWritable value, Context context)
+        public void map(LongArrayListWritable key, LongArrayListWritable value, Context context)
                 throws IOException, InterruptedException {
             context.write(value, 1);
         }
@@ -245,15 +277,6 @@ public class SmallWorld {
 
     }
 
-
-
-
-
-
-
-
-
-
     public static void main(String[] rawArgs) throws Exception {
         GenericOptionsParser parser = new GenericOptionsParser(rawArgs);
         Configuration conf = parser.getConfiguration();
@@ -274,8 +297,8 @@ public class SmallWorld {
 
         job.setMapOutputKeyClass(LongWritable.class);
         job.setMapOutputValueClass(LongWritable.class);
-        job.setOutputKeyClass(LongWritable.class);
-        job.setOutputValueClass(LongWritable.class);
+        job.setOutputKeyClass(LongArrayListWritable.class);
+        job.setOutputValueClass(LongArrayListWritable.class);
 
         job.setMapperClass(LoaderMap.class);
         job.setReducerClass(LoaderReduce.class);
@@ -297,10 +320,10 @@ public class SmallWorld {
             job.setJarByClass(SmallWorld.class);
 
             // Feel free to modify these four lines as necessary:
-            job.setMapOutputKeyClass(LongWritable.class);
+            job.setMapOutputKeyClass(LongArrayListWritable.class);
             job.setMapOutputValueClass(LongWritable.class);
-            job.setOutputKeyClass(LongWritable.class);
-            job.setOutputValueClass(LongWritable.class);
+            job.setOutputKeyClass(LongArrayListWritable.class);
+            job.setOutputValueClass(LongArrayListWritable.class);
 
             // You'll want to modify the following based on what you call
             // your mapper and reducer classes for the BFS phase.

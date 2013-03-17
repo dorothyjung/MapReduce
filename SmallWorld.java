@@ -94,7 +94,7 @@ public class SmallWorld {
             for (int i = 0; i < length; i++) {
                 stringRep = stringRep + destinations.get(i) + ", ";
             }
-            return stringrep + "]";
+            return stringRep + "]";
         }
 
     }
@@ -199,7 +199,7 @@ public class SmallWorld {
         @Override
         public void map(LongWritable key, VertexValueWritable value, Context context)
                 throws IOException, InterruptedException {
-            context.write(new LongWritable((Long) value.distance), new LongWritable(1L));
+            context.write(new LongWritable(new Long(value.distance)), new LongWritable(1L));
         }
     }
 

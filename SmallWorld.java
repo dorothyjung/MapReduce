@@ -68,6 +68,7 @@ public class SmallWorld {
         // Serializes object - needed for Writable
         public void write(DataOutput out) throws IOException {
             out.writeInt(distance);
+            out.writeInt(visited);
             length = 0;
             if (destinations != null){
                 length = destinations.size();
@@ -80,8 +81,9 @@ public class SmallWorld {
 
         // Deserializes object - needed for Writable
         public void readFields(DataInput in) throws IOException {
-            distance = in.readInt();
-            length = in.readInt();
+            this.distance = in.readInt();
+            this.visited = in.readInt();
+            this.length = in.readInt();
             destinations = new ArrayList<Long>(length);
             for(int i = 0; i < length; i++){
                 destinations.add(i, in.readLong());

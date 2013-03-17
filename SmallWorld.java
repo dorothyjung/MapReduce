@@ -152,6 +152,7 @@ public class SmallWorld {
                     denom = Long.parseLong(context.getConfiguration().get("denom"));
                     if (Math.random() < 1 / denom) {
                         context.write(key, new VertexValueWritable(value.destinations, 0L, NOT_VISITED));
+                        context.write(key, new VertexValueWritable(null, 0L, ZERO_EDGE));
                     }else {
                         context.write(key, value);
                     }
@@ -193,15 +194,9 @@ public class SmallWorld {
                     if (value.destinations != null) {
                         destinations = value.destinations;
                     }
-                    if (value.distance == 0) {
-                        context.write(key, new VertexValueWritable(null, 0L, ZERO_EDGE));
-                    }
                 }else {
-                    zeroEdge = true;
+                    context.write(key, value);
                 }
-            }
-            if (zeroEdge) {
-                context.write(key, new VertexValueWritable(null, 0L, ZERO_EDGE));
             }
             context.write(key, new VertexValueWritable(destinations, minDistance, maxFlag));
         }

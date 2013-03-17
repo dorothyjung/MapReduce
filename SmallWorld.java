@@ -48,7 +48,7 @@ public class SmallWorld {
     private static final int NOT_VISITED = 0;
     private static final int UNKNOWN = -1;
     // Example writable type
-    public static class VertexValue implements Writable {
+    public static class VertexValueWritable implements Writable {
 
         public int distance; 
         public ArrayList<Long> destinations; 
@@ -215,7 +215,7 @@ public class SmallWorld {
             for (LongWritable value : values) {       
 		      sum += value.get();
 	        }
-	        context.write(key, new LongWritable(sum);
+	        context.write(key, new LongWritable(sum));
         }
 
     }

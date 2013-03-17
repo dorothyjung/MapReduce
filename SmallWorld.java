@@ -174,7 +174,7 @@ public class SmallWorld {
             Context context) throws IOException, InterruptedException {
             int minDistance = Integer.MAX_VALUE;
             int maxFlag = -1;
-            ArrayList<Long> destinations;
+            ArrayList<Long> destinations = new ArrayList<Long>();
             for (VertexValueWritable value : values) {
                 if (value.distance < minDistance) {
                     minDistance = value.distance;

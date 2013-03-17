@@ -183,7 +183,7 @@ public class SmallWorld {
             for (VertexValueWritable value : values) {
                 System.out.println("Value: " + value.toString());
                 if (value.visited != ZERO_EDGE) {
-                    if (value.distance < minDistance && value.distance != 0) {
+                    if (value.distance < minDistance) {
                         minDistance = value.distance;
                     }
                     if (value.visited > maxFlag) {

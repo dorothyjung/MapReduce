@@ -52,7 +52,7 @@ In the first iteration of BFSMap, we will choose the starting nodes with 1/denom
 	 (source, [[destinations]|0|0]).
 All other nodes will remain as is.
 
-The job of BFSMap is to change all the nodes with visited? = 0 to visited? = 1; this means that it will visit all the nodes on the same level in 1 iteration of BFSMap. When it visits a node, it will write:
+The job of BFSMap is to change all the nodes with NOT_VISITED to visited? = VISITED; this means that it will visit all the nodes on the same level in 1 iteration of BFSMap. When it visits a node, it will write:
 if visited = 0:
    write a new (key, value) pair for this node with visited?= 1 but same distance = 0
    for every node in [destinations]:

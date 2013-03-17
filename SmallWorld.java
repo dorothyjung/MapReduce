@@ -43,70 +43,58 @@ import org.apache.hadoop.util.GenericOptionsParser;
 public class SmallWorld {
     // Maximum depth for any breadth-first search
     public static final int MAX_ITERATIONS = 20;
-    // Marker for initial search vertex
-    private static final long NEW_VERTEX = -1L;
-    // Indicator for vertex destinations
-    private static final String VERTEX_DESTINATION = "vertexGraph";
-
+    // flags for vertices 
+    private static final int VISITED = 1;
+    private static final int NOT_VISITED = 0;
+    private static final int UNKNOWN = -1;
     // Example writable type
-    public static class EValue implements Writable {
+    public static class VertexValue implements Writable {
 
-        public int exampleInt; //example integer field
-        public long[] exampleLongArray; //example array of longs
+        public int distance; 
+        public ArrayList<Long> destinations; 
+        public int visited;
+        private int length;
 
-        public EValue(int exampleInt, long[] exampleLongArray) {
-            this.exampleInt = exampleInt;
-            this.exampleLongArray = exampleLongArray;
+        public VertexValueWritable(ArrayList<Long> destinations, int distance, int visited) {
+            this.distance = distance;
+            this.destinations = destinations;
+            this.visited = visited;
         }
 
-        public EValue() {
+        public VertexValueWritable() {
             // does nothing
         }
 
         // Serializes object - needed for Writable
         public void write(DataOutput out) throws IOException {
-            out.writeInt(exampleInt);
-
-            // Example of serializing an array:
-            
-            // It's a good idea to store the length explicitly
-            int length = 0;
-
-            if (exampleLongArray != null){
-                length = exampleLongArray.length;
+            out.writeInt(distance);
+            length = 0;
+            if (destinations != null){
+                length = destinations.size();
             }
-
-            // always write the length, since we need to know
-            // even when it's zero
             out.writeInt(length);
-
-            // now write each long in the array
             for (int i = 0; i < length; i++){
-                out.writeLong(exampleLongArray[i]);
+                out.writeLong(destinations.get(i));
             }
         }
 
         // Deserializes object - needed for Writable
         public void readFields(DataInput in) throws IOException {
-            // example reading an int from the serialized object
-            exampleInt = in.readInt();
-
-            // example reading length from the serialized object
-            int length = in.readInt();
-
-            // Example of rebuilding the array from the serialized object
-            exampleLongArray = new long[length];
-            
+            distance = in.readInt();
+            length = in.readInt();
+            destinations = new ArrayList<Long>(length);
             for(int i = 0; i < length; i++){
-                exampleLongArray[i] = in.readLong();
+                destinations.add(i, in.readLong());
             }
-
         }
 
         public String toString() {
-            // We highly recommend implementing this for easy testing and
-            // debugging. This version just returns an empty string.
-            return new String();
+            String stringRep = "Node\n======\nVisited: " 
+                + visited + "\nDistance: " + distance + "\nDestinations: [";
+            for (int i = 0; i < length; i++) {
+                stringRep = stringRep + destinations.get(i) + ", ";
+            }
+            return stringrep + "]";
         }
 
     }
@@ -163,9 +151,6 @@ public class SmallWorld {
         @Override
         public void map(LongWritable key, LongWritable value, Context context)
                 throws IOException, InterruptedException {
-
-            // example of getting value passed from main
-            //int inputValue = Integer.parseInt(context.getConfiguration().get("inputValue"));
             context.write(key, value);
         }
     }
@@ -177,29 +162,17 @@ public class SmallWorld {
      * and using the denom field.  
      */
     public static class LoaderReduce extends Reducer<LongWritable, LongWritable, 
-        LongArrayListWritable, LongArrayListWritable> {
+        LongWritable, VertexValueWritable> {
 
         public long denom;
 
         public void reduce(LongWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
-            // We can grab the denom field from context: 
-            //denom = Long.parseLong(context.getConfiguration().get("denom"));
-
-            // You can print it out by uncommenting the following line:
-            // System.out.println(denom);
-
-            //String valueString = new String();
-            ArrayList<Long> valueList = new ArrayList<Long>();
-            ArrayList<Long> keyList = new ArrayList<Long>();
-            keylist.add(key.get());
-            longArrayList.add(NEW_VERTEX);
+            ArrayList<Long> destinations = new ArrayList<Long>();
             for (LongWritable value : values){            
-                longArrayList.add(value.get());
-                //valueString = valueString + Long.toString(value.get()) + ",";
+                destinations.add(value.get());   
             }
-            //context.getConfiguration().set(VERTEX_DESTINATION + Long.toString(key.get()), valueString);
-            context.write(new LongArrayListWritable(keyList.size(), keyList), new LongArrayListWritable(valueList.size(), valueList));
+            context.write(key, new VertexValueWritable(destinations, Integer.MAX_VALUE, UNKNOWN));
         }
 
     }
@@ -211,33 +184,41 @@ public class SmallWorld {
     /* The BFS mapper. Determines which nodes to inspect with probability 1/denorm.
      * Takes in (source, [destinations]) pairs and finds the distance from inspected node
      * to other vertices in the graph. */
-    public static class BFSMap extends Mapper<LongArrayListWritable, LongArrayListWritable, 
-        LongArrayListWritable, LongWritable> {
+    public static class BFSMap extends Mapper<LongWritable, VertexValueWritable, 
+        LongWritable, VertexValueWritable> {
 
         @Override
-        public void map(LongArrayListWritable key, LongArrayListWritable value, Context context)
+        public void map(LongWritable key, VertexValueWritable value, Context context)
                 throws IOException, InterruptedException {
-	    //do this for the first time ONLY
-	    public long denom;
-            denom = Long.parseLong(context.getConfiguration().get("denom"));
-	    private double ref = Math.random();
-	    private double prob = (double) 1 / denom;
-	    if (ref < prob) {
-		//perform op
-		context.write(key, value);
+                if (value.visited == UNKNOWN) {
+                    long denom = Long.parseLong(context.getConfiguration().get("denom"));
+                    if (Math.random() < 1 / denom) {
+                        context.write(key, new VertexValueWritable(value.destinations, 0, NOT_VISITED));
+                    }else {
+                        context.write(key, value);
+                    }
+                }else if (value.visited == NOT_VISITED) {
+                    context.write(key, new VertexValueWritable(value.destinations, value.distance, VISITED));
+                    for (Long n : value.destinations) {
+                        context.write(new LongWritable(n), new VertexValueWritable(null, value.distance + 1, NOT_VISITED));
+                    }
+                }else {
+                    context.write(key, value);
+                }
 	    }
-        }
+
     }
+
 
 
     /* The BFS reducer. Takes in ([source,dest], distance) pairs and returns 1
      * pair ([source,dest], shortest distance). */
-    public static class BFSReduce extends Reducer<LongArrayListWritable, LongWritable, 
-        LongArrayListWritable, LongArrayListWritable> {
+    public static class BFSReduce extends Reducer<LongWritable, VertexValueWritable, 
+        LongWritable, VertexValueWritable> {
 
         public long denom;
 
-        public void reduce(LongArrayListWritable key, Iterable<LongWritable> values, 
+        public void reduce(LongWritable key, Iterable<VertexValueWritable> values, 
             Context context) throws IOException, InterruptedException {
 	    //afixme
             for (LongWritable value : values){            
@@ -249,13 +230,13 @@ public class SmallWorld {
 
 
     /* The last mapper. Maps each distance from input to 1. */
-    public static class HistoMap extends Mapper<LongArrayListWritable, LongArrayListWritable, 
+    public static class HistoMap extends Mapper<LongWritable, VertexValueWritable, 
         LongWritable, LongWritable> {
 
         @Override
-        public void map(LongArrayListWritable key, LongArrayListWritable value, Context context)
+        public void map(LongWritable key, VertexValueWritable value, Context context)
                 throws IOException, InterruptedException {
-            context.write(value, 1);
+            context.write(new LongWritable((Long) value.distance), new LongWritable(1L));
         }
     }
 
@@ -267,12 +248,11 @@ public class SmallWorld {
 
         public void reduce(LongWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
-          
-	    int sum = 0;
-            for (LongWritable value : values){       
-		sum += value;
-	    }
-	    context.write(key, value);
+            Long sum = 0L;
+            for (LongWritable value : values) {       
+		      sum += value.get();
+	        }
+	        context.write(key, new LongWritable(sum);
         }
 
     }
@@ -285,11 +265,6 @@ public class SmallWorld {
         // Pass in denom command line arg:
         conf.set("denom", args[2]);
 
-        // Sample of passing value from main into Mappers/Reducers using
-        // conf. You might want to use something like this in the BFS phase:
-        // See LoaderMap for an example of how to access this value
-        conf.set("inputValue", (new Integer(5)).toString());
-
         // Setting up mapreduce job to load in graph
         Job job = new Job(conf, "load graph");
 
@@ -297,8 +272,8 @@ public class SmallWorld {
 
         job.setMapOutputKeyClass(LongWritable.class);
         job.setMapOutputValueClass(LongWritable.class);
-        job.setOutputKeyClass(LongArrayListWritable.class);
-        job.setOutputValueClass(LongArrayListWritable.class);
+        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputValueClass(VertexValueWritable.class);
 
         job.setMapperClass(LoaderMap.class);
         job.setReducerClass(LoaderReduce.class);
@@ -320,10 +295,10 @@ public class SmallWorld {
             job.setJarByClass(SmallWorld.class);
 
             // Feel free to modify these four lines as necessary:
-            job.setMapOutputKeyClass(LongArrayListWritable.class);
-            job.setMapOutputValueClass(LongWritable.class);
-            job.setOutputKeyClass(LongArrayListWritable.class);
-            job.setOutputValueClass(LongArrayListWritable.class);
+            job.setMapOutputKeyClass(LongWritable.class);
+            job.setMapOutputValueClass(VertexValueWritable.class);
+            job.setOutputKeyClass(LongWritable.class);
+            job.setOutputValueClass(VertexValueWritable.class);
 
             // You'll want to modify the following based on what you call
             // your mapper and reducer classes for the BFS phase.

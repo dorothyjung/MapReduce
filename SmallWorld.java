@@ -176,7 +176,7 @@ public class SmallWorld {
         public void reduce(LongWritable key, Iterable<VertexValueWritable> values, 
             Context context) throws IOException, InterruptedException {
             System.out.println("BFSReduce\n=====\nKey: " + key.get());
-            int minDistance = Long.MAX_VALUE;
+            long minDistance = Long.MAX_VALUE;
             int maxFlag = -1;
             ArrayList<Long> destinations = new ArrayList<Long>();
             for (VertexValueWritable value : values) {

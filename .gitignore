@@ -5,3 +5,7 @@
 *.jar
 *.war
 *.ear
+
+bfs*
+ring4/*
+cit-HepPh/*

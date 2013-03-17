@@ -81,32 +81,32 @@ public class SmallWorld {
                 out.writeLong(destinations.get(i));
             }
 
-	    if (distances != null) {
-		startNodes = distances.size();
-	    }
-	    out.writeInt(startNodes);
-	    for (Long node : distances.keySet()) {
-		out.writeLong(node);
-		out.writeLong(distances.get(node));
-	    }
+	       if (distances != null) {
+		      startNodes = distances.size();
+	        }
+	        out.writeInt(startNodes);
+	        for (Long node : distances.keySet()) {
+		      out.writeLong(node);
+		      out.writeLong(distances.get(node));
+	        }  
         }
 
         // Deserializes object - needed for Writable
         public void readFields(DataInput in) throws IOException {
             this.visited = in.readInt();
             this.length = in.readInt();
-            ArrayList<Long> destinations = new ArrayList<Long>(length);
-	    HashMap<Long, Long> distances = new HashMap<Long, Long>();
+            this.destinations = new ArrayList<Long>(length);
+	        this.distances = new HashMap<Long, Long>();
 
             for(int i = 0; i < length; i++){
                 destinations.add(i, in.readLong());
             }
 
-	    this.startNodes = in.readInt();
-	    for (int i = 0; i < startNodes; i++) {
-		Long source = in.readLong();
-		distances.put(source, in.readLong());
-	    }
+	       this.startNodes = in.readInt();
+	       for (int i = 0; i < startNodes; i++) {
+		      Long source = in.readLong();
+		      distances.put(source, in.readLong());
+	        }
         }
 
         public String toString() {

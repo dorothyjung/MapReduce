@@ -99,50 +99,6 @@ public class SmallWorld {
 
     }
 
-    /* Writable LongArrayList */
-    public class LongArrayListWritable extends Writable {
-        public int length;
-        public int ArrayList<Long> array;
-
-        public LongArrayListWritable(int length, ArrayList<Long> array) {
-            this.length = length;
-            this.array = array;
-        }
-
-        public LongArrayListWritable() {
-
-        }
-
-        pubic void write(DataOutput out) throws IOException {
-            int length = 0;
-            if (array != null) {
-                length = array.size();
-            }
-            out.writeInt(length);
-            for (int i = 0; i < length; i++) {
-                out.writeLong(array.get(i));
-            }
-        }
-
-        public void readFields(DataInput in) throws IOException {
-            int length = in.readInt();
-            array = new ArrayList<Long>(length);
-            for(int i = 0; i < length; i++) {
-                array.add(i, in.readLong());
-            }
-        }
-
-        public String toString() {
-            String output = "[";
-            for (Long i : array) {
-                output = output + i + ", ";
-            }
-            output = output + "]";
-            return output;
-        }
-
-    }
-
     /* The first mapper. Part of the graph loading process, currently just an 
      * identity function. Modify as you wish. */
     public static class LoaderMap extends Mapper<LongWritable, LongWritable, 
@@ -164,8 +120,6 @@ public class SmallWorld {
     public static class LoaderReduce extends Reducer<LongWritable, LongWritable, 
         LongWritable, VertexValueWritable> {
 
-        public long denom;
-
         public void reduce(LongWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
             ArrayList<Long> destinations = new ArrayList<Long>();
@@ -186,12 +140,12 @@ public class SmallWorld {
      * to other vertices in the graph. */
     public static class BFSMap extends Mapper<LongWritable, VertexValueWritable, 
         LongWritable, VertexValueWritable> {
-
+        public long denom;
         @Override
         public void map(LongWritable key, VertexValueWritable value, Context context)
                 throws IOException, InterruptedException {
                 if (value.visited == UNKNOWN) {
-                    long denom = Long.parseLong(context.getConfiguration().get("denom"));
+                    denom = Long.parseLong(context.getConfiguration().get("denom"));
                     if (Math.random() < 1 / denom) {
                         context.write(key, new VertexValueWritable(value.destinations, 0, NOT_VISITED));
                     }else {
@@ -216,14 +170,23 @@ public class SmallWorld {
     public static class BFSReduce extends Reducer<LongWritable, VertexValueWritable, 
         LongWritable, VertexValueWritable> {
 
-        public long denom;
-
         public void reduce(LongWritable key, Iterable<VertexValueWritable> values, 
             Context context) throws IOException, InterruptedException {
-	    //afixme
-            for (LongWritable value : values){            
-                context.write(key, value);
+            int minDistance = Integer.MAX_VALUE;
+            int maxFlag = -1;
+            ArrayList<Long> destinations;
+            for (VertexValueWritable value : values) {
+                if (value.distance < minDistance) {
+                    minDistance = value.distance;
+                }
+                if (value.visited > maxFlag) {
+                    maxFlag = value.visited;
+                }
+                if (value.destinations != null) {
+                    destinations = value.destinations;
+                }
             }
+            context.write(key, new VertexValueWritable(destinations, minDistance, maxFlag));
         }
 
     }

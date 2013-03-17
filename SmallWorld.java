@@ -48,6 +48,7 @@ public class SmallWorld {
     private static final int NOT_VISITED = 0;
     private static final int UNKNOWN = -1;
     private static final int ZERO_EDGE = -2;
+
     // Example writable type
     public static class VertexValueWritable implements Writable {
 
@@ -70,7 +71,7 @@ public class SmallWorld {
         // Serializes object - needed for Writable
         public void write(DataOutput out) throws IOException {
             out.writeInt(visited);
-            length = 0, startNodes = 0;
+            length = 0; startNodes = 0;
 
             if (destinations != null){
                 length = destinations.size();
@@ -126,7 +127,7 @@ public class SmallWorld {
 
         @Override
         public void map(LongWritable key, LongWritable value, Context context)
-                throws IOException, InterruptedException {
+	    throws IOException, InterruptedException {
             context.write(key, value);
         }
     }
@@ -161,34 +162,34 @@ public class SmallWorld {
      * to other vertices in the graph. */
     public static class BFSMap extends Mapper<LongWritable, VertexValueWritable, 
         LongWritable, VertexValueWritable> {
-        public long denom;x
+        public long denom;
+
         @Override
         public void map(LongWritable key, VertexValueWritable value, Context context)
-                throws IOException, InterruptedException {
-                System.out.println("BFSMap\n=======\nKey: " + key.get() +  "\nValue: " + value.toString());
-                if (value.visited == UNKNOWN) {
-                    denom = Long.parseLong(context.getConfiguration().get("denom"));
-                    if (Math.random() < 1 / denom) {
-                        context.write(key, new VertexValueWritable(value.destinations, value.distances.put(key.get(), 0L), NOT_VISITED));//startnode
-                    } else {
-                        context.write(key, value);
-                    }
-                } else if (value.visited == NOT_VISITED) {
-
-                    context.write(key, new VertexValueWritable(value.destinations, value.distances, VISITED));
-
-		    HashMap<Long, Long> newDistances = new HashMap<Long, Long>();
-		    for (Long node : value.distances.keySet()) {
-			newDistances.put(node, value.distances.get(node) + 1);
-		    }
-                    for (Long n : value.destinations) {
-                        context.write(new LongWritable(n), new VertexValueWritable(null, newDistances, NOT_VISITED));
-                    }
-                } else {
-                    context.write(key, value);
-                }
+	    throws IOException, InterruptedException {
+	    System.out.println("BFSMap\n=======\nKey: " + key.get() +  "\nValue: " + value.toString());
+	    if (value.visited == UNKNOWN) {
+		denom = Long.parseLong(context.getConfiguration().get("denom"));
+		if (Math.random() < 1 / denom) {
+		    value.distances.put(key.get(), 0L);
+		    context.write(key, new VertexValueWritable(value.destinations, value.distances, 0));//startnode
+		} else {
+		    context.write(key, value);
+		}
+	    } else if (value.visited == NOT_VISITED) {		
+		context.write(key, new VertexValueWritable(value.destinations, value.distances, 1));
+		
+		HashMap<Long, Long> newDistances = new HashMap<Long, Long>();
+		for (Long node : value.distances.keySet()) {
+		    newDistances.put(node, value.distances.get(node) + 1);
+		}
+		for (Long n : value.destinations) {
+		    context.write(new LongWritable(n), new VertexValueWritable(null, newDistances, 0));
+		}
+	    } else {
+		context.write(key, value);
 	    }
-
+	}
     }
 
 
@@ -229,7 +230,6 @@ public class SmallWorld {
             }
             context.write(key, new VertexValueWritable(destinations, distances, maxFlag));
         }
-
     }
 
 
@@ -242,7 +242,8 @@ public class SmallWorld {
                 throws IOException, InterruptedException {
 	    for (Long node : value.distances.keySet()) {
 		context.write(new LongWritable(value.distances.get(node)), new LongWritable(1L));
-        }
+	    }
+	}
     }
 
 

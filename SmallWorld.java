@@ -146,6 +146,7 @@ public class SmallWorld {
         @Override
         public void map(LongWritable key, VertexValueWritable value, Context context)
                 throws IOException, InterruptedException {
+                System.out.println("BFSMap\n=======\nKey: " + key.get() +  "\nValue: " + value.toString());
                 if (value.visited == UNKNOWN) {
                     denom = Long.parseLong(context.getConfiguration().get("denom"));
                     if (Math.random() < 1 / denom) {
@@ -171,13 +172,15 @@ public class SmallWorld {
      * pair ([source,dest], shortest distance). */
     public static class BFSReduce extends Reducer<LongWritable, VertexValueWritable, 
         LongWritable, VertexValueWritable> {
-
+        
         public void reduce(LongWritable key, Iterable<VertexValueWritable> values, 
             Context context) throws IOException, InterruptedException {
+            System.out.println("BFSReduce\n=====\nKey: " + key.get())
             int minDistance = Integer.MAX_VALUE;
             int maxFlag = -1;
             ArrayList<Long> destinations = new ArrayList<Long>();
             for (VertexValueWritable value : values) {
+                System.out.println("Value: " value.toString());
                 if (value.distance < minDistance) {
                     minDistance = value.distance;
                 }

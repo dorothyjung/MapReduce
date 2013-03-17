@@ -138,7 +138,7 @@ public class SmallWorld {
     // ------- Add your additional Mappers and Reducers Here ------- //
 
 
-    /* The BFS mapper. Determines which nodes to inspect with probability 1/denorm.
+    /* The BFS mapper. Determines which nodes to inspect with probability 1/denom.
      * Takes in (source, [destinations]) pairs and finds the distance from inspected node
      * to other vertices in the graph. */
     public static class BFSMap extends Mapper<LongWritable, VertexValueWritable, 
@@ -156,12 +156,12 @@ public class SmallWorld {
                     }else {
                         context.write(key, value);
                     }
-                }else if (value.visited == NOT_VISITED) {
+                } else if (value.visited == NOT_VISITED) {
                     context.write(key, new VertexValueWritable(value.destinations, value.distance + 1, VISITED));
                     for (Long n : value.destinations) {
                         context.write(new LongWritable(n), new VertexValueWritable(null, value.distance + 1, NOT_VISITED));
                     }
-                }else {
+                } else {
                     context.write(key, value);
                 }
 	    }
@@ -194,8 +194,8 @@ public class SmallWorld {
                     if (value.destinations != null) {
                         destinations = value.destinations;
                     }
-                }else {
-                    zergFlag = true;
+                } else {
+                    zeroFlag = true;
                 }
             }
             if (zeroFlag) {

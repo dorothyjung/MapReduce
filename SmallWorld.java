@@ -215,7 +215,9 @@ public class SmallWorld {
             for (LongWritable value : values) {       
 		      sum += value.get();
 	        }
-	        context.write(key, new LongWritable(sum));
+            if (!(sum > MAX_ITERATIONS)) {
+	           context.write(key, new LongWritable(sum));
+            }
         }
 
     }

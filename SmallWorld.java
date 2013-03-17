@@ -99,7 +99,7 @@ public class SmallWorld {
 	    HashMap<Long, Long> distances = new HashMap<Long, Long>();
 
             for(int i = 0; i < length; i++){
-                destinations.add(i, in.readLong());
+                destinations.add(in.readLong());
             }
 
 	    this.startNodes = in.readInt();
@@ -110,6 +110,12 @@ public class SmallWorld {
         }
 
         public String toString() {
+
+	    //remove
+	    System.out.println("" + (distances == null));
+	    System.out.println(distances.toString());
+
+
             String stringRep = "Node\n======\nVisited: " + visited
 		+ "\nDistances: " + distances.toString() + "\nDestinations: [";
             for (int i = 0; i < length; i++) {
@@ -172,19 +178,19 @@ public class SmallWorld {
 		denom = Long.parseLong(context.getConfiguration().get("denom"));
 		if (Math.random() < 1 / denom) {
 		    value.distances.put(key.get(), 0L);
-		    context.write(key, new VertexValueWritable(value.destinations, value.distances, 0));//startnode
+		    context.write(key, new VertexValueWritable(value.destinations, value.distances, NOT_VISITED));//startnode
 		} else {
 		    context.write(key, value);
 		}
 	    } else if (value.visited == NOT_VISITED) {		
-		context.write(key, new VertexValueWritable(value.destinations, value.distances, 1));
+		context.write(key, new VertexValueWritable(value.destinations, value.distances, VISITED));
 		
 		HashMap<Long, Long> newDistances = new HashMap<Long, Long>();
 		for (Long node : value.distances.keySet()) {
 		    newDistances.put(node, value.distances.get(node) + 1);
 		}
 		for (Long n : value.destinations) {
-		    context.write(new LongWritable(n), new VertexValueWritable(null, newDistances, 0));
+		    context.write(new LongWritable(n), new VertexValueWritable(null, newDistances, NOT_VISITED));
 		}
 	    } else {
 		context.write(key, value);
@@ -318,7 +324,8 @@ public class SmallWorld {
 
             // Notice how each mapreduce job gets gets its own output dir
             FileInputFormat.addInputPath(job, new Path("bfs-" + i + "-out"));
-            FileOutputFormat.setOutputPath(job, new Path("bfs-"+ (i+1) +"-out"));
+	    //            FileOutputFormat.setOutputPath(job, new Path("bfs-"+ (i+1) +"-out"));
+            TextOutputFormat.setOutputPath(job, new Path("bfs-"+ (i+1) +"-out"));
 
             job.waitForCompletion(true);
             i++;
@@ -347,7 +354,8 @@ public class SmallWorld {
         // By declaring i above outside of loop conditions, can use it
         // here to get last bfs output to be input to histogram
         FileInputFormat.addInputPath(job, new Path("bfs-"+ i +"-out"));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+	//        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        TextOutputFormat.setOutputPath(job, new Path(args[1]));
 
         job.waitForCompletion(true);
     }

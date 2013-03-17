@@ -50,12 +50,12 @@ public class SmallWorld {
     // Example writable type
     public static class VertexValueWritable implements Writable {
 
-        public int distance; 
+        public long distance; 
         public ArrayList<Long> destinations; 
         public int visited;
         private int length;
 
-        public VertexValueWritable(ArrayList<Long> destinations, int distance, int visited) {
+        public VertexValueWritable(ArrayList<Long> destinations, long distance, int visited) {
             this.distance = distance;
             this.destinations = destinations;
             this.visited = visited;
@@ -67,7 +67,7 @@ public class SmallWorld {
 
         // Serializes object - needed for Writable
         public void write(DataOutput out) throws IOException {
-            out.writeInt(distance);
+            out.writeLong(distance);
             out.writeInt(visited);
             length = 0;
             if (destinations != null){
@@ -81,7 +81,7 @@ public class SmallWorld {
 
         // Deserializes object - needed for Writable
         public void readFields(DataInput in) throws IOException {
-            this.distance = in.readInt();
+            this.distance = in.readLong();
             this.visited = in.readInt();
             this.length = in.readInt();
             destinations = new ArrayList<Long>(length);
@@ -128,7 +128,7 @@ public class SmallWorld {
             for (LongWritable value : values){            
                 destinations.add(value.get());   
             }
-            context.write(key, new VertexValueWritable(destinations, Integer.MAX_VALUE, UNKNOWN));
+            context.write(key, new VertexValueWritable(destinations, Long.MAX_VALUE, UNKNOWN));
         }
 
     }
@@ -150,7 +150,7 @@ public class SmallWorld {
                 if (value.visited == UNKNOWN) {
                     denom = Long.parseLong(context.getConfiguration().get("denom"));
                     if (Math.random() < 1 / denom) {
-                        context.write(key, new VertexValueWritable(value.destinations, 0, NOT_VISITED));
+                        context.write(key, new VertexValueWritable(value.destinations, 0L, NOT_VISITED));
                     }else {
                         context.write(key, value);
                     }

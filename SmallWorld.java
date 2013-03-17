@@ -47,6 +47,7 @@ public class SmallWorld {
     private static final int VISITED = 1;
     private static final int NOT_VISITED = 0;
     private static final int UNKNOWN = -1;
+    private static final int ZERO_EDGE = -2;
     // Example writable type
     public static class VertexValueWritable implements Writable {
 
@@ -181,14 +182,21 @@ public class SmallWorld {
             ArrayList<Long> destinations = new ArrayList<Long>();
             for (VertexValueWritable value : values) {
                 System.out.println("Value: " + value.toString());
-                if (value.distance < minDistance) {
-                    minDistance = value.distance;
-                }
-                if (value.visited > maxFlag) {
-                    maxFlag = value.visited;
-                }
-                if (value.destinations != null) {
-                    destinations = value.destinations;
+                if (value.visited != ZERO_EDGE) {
+                    if (value.distance < minDistance && value.distance != 0) {
+                        minDistance = value.distance;
+                    }
+                    if (value.visited > maxFlag) {
+                        maxFlag = value.visited;
+                    }
+                    if (value.destinations != null) {
+                        destinations = value.destinations;
+                    }
+                    if (value.distance == 0) {
+                        context.write(key, new VertexValueWritable(null, 0L, ZERO_EDGE));
+                    }
+                }else {
+                    context.write(key, value);
                 }
             }
             context.write(key, new VertexValueWritable(destinations, minDistance, maxFlag));

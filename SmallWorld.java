@@ -179,6 +179,7 @@ public class SmallWorld {
             System.out.println("BFSReduce\n=====\nKey: " + key.get());
             long minDistance = Long.MAX_VALUE;
             int maxFlag = -1;
+            boolean zeroEdge = false;
             ArrayList<Long> destinations = new ArrayList<Long>();
             for (VertexValueWritable value : values) {
                 System.out.println("Value: " + value.toString());
@@ -196,8 +197,11 @@ public class SmallWorld {
                         context.write(key, new VertexValueWritable(null, 0L, ZERO_EDGE));
                     }
                 }else {
-                    context.write(key, value);
+                    zeroEdge = true;
                 }
+            }
+            if (zeroEdge) {
+                context.write(key, new VertexValueWritable(null, 0L, ZERO_EDGE));
             }
             context.write(key, new VertexValueWritable(destinations, minDistance, maxFlag));
         }

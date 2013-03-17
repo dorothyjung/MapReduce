@@ -111,11 +111,6 @@ public class SmallWorld {
 
         public String toString() {
 
-	    //remove
-	    System.out.println("" + (distances == null));
-	    System.out.println(distances.toString());
-
-
             String stringRep = "Node\n======\nVisited: " + visited
 		+ "\nDistances: " + distances.toString() + "\nDestinations: [";
             for (int i = 0; i < length; i++) {

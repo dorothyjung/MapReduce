@@ -169,7 +169,8 @@ public class SmallWorld {
 	    System.out.println("BFSMap\n=======\nKey: " + key.get() +  "\nValue: " + value.toString());
 	    if (value.visited == UNKNOWN) {
 		denom = Long.parseLong(context.getConfiguration().get("denom"));
-		if (Math.random() < (double)(1 / denom)) {
+        double prob = Math.random();
+		if (prob <= (double)(1 / denom)) {
 		    value.distances.put(key.get(), 0L);
 		    context.write(key, new VertexValueWritable(value.destinations, value.distances, NOT_VISITED));//startnode
 		} else {

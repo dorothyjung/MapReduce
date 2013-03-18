@@ -101,7 +101,7 @@ public class SmallWorld {
             this.visited = in.readInt();
             this.length = in.readInt();
             this.destinations = new ArrayList<Long>(length);
-	        this.distances = new HashMap<Long, Long>();
+	        this.distances = new HashMap<Long, Long[]>();
 
             for(int i = 0; i < length; i++){
                 destinations.add(in.readLong());
@@ -151,7 +151,7 @@ public class SmallWorld {
         public void reduce(LongWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
             ArrayList<Long> destinations = new ArrayList<Long>();
-	        HashMap<Long, Long> distances = new HashMap<Long, Long[]>();
+	        HashMap<Long, Long[]> distances = new HashMap<Long, Long[]>();
             for (LongWritable value : values){            
                 destinations.add(value.get());   
             }
@@ -229,10 +229,10 @@ public class SmallWorld {
                         Long[] reduceDist = reduceMap.get(source);
                         Long[] curDist = v.distances.get(source);
                         if (reduceDist[DISTANCE] > curDist[DISTANCE]) {
-                            reduce[DISTANCE] = curDist[DISTANCE];
+                            reduceDist[DISTANCE] = curDist[DISTANCE];
                         }
                         if (curDist[FLAG] == VISITED) {
-                            reduce[FLAG] = VISITED;
+                            reduceDist[FLAG] = VISITED;
                         }
                         reduceMap.put(source, reduceDist);
                     } else {

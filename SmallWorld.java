@@ -268,11 +268,9 @@ public class SmallWorld {
             Context context) throws IOException, InterruptedException {
             Long sum = 0L;
             for (LongWritable value : values) {       
-		      sum += value.get();
+		      sum = sum + value.get();
 	        }
-            if (!(sum > MAX_ITERATIONS)) {
-	           context.write(key, new LongWritable(sum));
-            }
+	        context.write(key, new LongWritable(sum));
         }
 
     }

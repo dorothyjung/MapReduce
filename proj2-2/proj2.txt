@@ -1,0 +1,23 @@
+1. Clusters    Time    Searches    Reducers
+   ========================================
+       6
+       9
+       12
+2. Distances (Cluster Size:):
+	50th:
+	90th:
+	95th:
+3. Mean Processing Rate:
+	6 clusters:
+	9 clusters:
+	12 clusters
+4. Speedup in comparison to 6 clusters:
+	9:
+	12:
+	Conclusion:
+5.
+6. Price per GB processed ($0.68 per hour rounded to nearest hour):
+	6 clusters:
+	9 clusters:
+	12 clusters:
+7. Dollars used:

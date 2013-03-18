@@ -170,7 +170,7 @@ public class SmallWorld {
 	    if (value.visited == UNKNOWN) {
 		denom = Long.parseLong(context.getConfiguration().get("denom"));
         double prob = Math.random();
-		if (prob <= (double)(1 / denom)) {
+		if (prob <= (1 / (double)denom)) {
 		    value.distances.put(key.get(), 0L);
 		    context.write(key, new VertexValueWritable(value.destinations, value.distances, NOT_VISITED));//startnode
 		} else {

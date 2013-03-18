@@ -44,10 +44,8 @@ public class SmallWorld {
     // Maximum depth for any breadth-first search
     public static final int MAX_ITERATIONS = 20;
     // flags for vertices 
-    private static final int VISITED = 1;
     private static final int NOT_VISITED = 0;
     private static final int UNKNOWN = -1;
-    private static final int ZERO_EDGE = -2;
 
     // Example writable type
     public static class VertexValueWritable implements Writable {
@@ -177,8 +175,9 @@ public class SmallWorld {
 		} else {
 		    context.write(key, value);
 		}
-	    } else if (value.visited == NOT_VISITED) {		
-		context.write(key, new VertexValueWritable(value.destinations, value.distances, VISITED));
+		//	    } else if (value.visited == NOT_VISITED) {
+	    } else {
+		context.write(key, new VertexValueWritable(value.destinations, value.distances, value.visited));
 		
 		HashMap<Long, Long> newDistances = new HashMap<Long, Long>();
 		for (Long node : value.distances.keySet()) {
@@ -187,8 +186,6 @@ public class SmallWorld {
 		for (Long n : value.destinations) {
 		    context.write(new LongWritable(n), new VertexValueWritable(null, newDistances, NOT_VISITED));
 		}
-	    } else {
-		context.write(key, value);
 	    }
 	}
     }
@@ -204,13 +201,11 @@ public class SmallWorld {
             Context context) throws IOException, InterruptedException {
             System.out.println("BFSReduce\n=====\nKey: " + key.get());
             int maxFlag = -1;
-	    //            boolean zeroFlag = false;
             ArrayList<Long> destinations = new ArrayList<Long>();
 	    HashMap<Long, Long> distances = new HashMap<Long, Long>();
 
             for (VertexValueWritable value : values) {
                 System.out.println("Value: " + value.toString());
-		//                if (value.visited != ZERO_EDGE) {
 
 		for (Long node : value.distances.keySet()) {
 		    if (distances.containsKey(node)) {
@@ -225,7 +220,7 @@ public class SmallWorld {
 		if (value.visited > maxFlag) {
 		    maxFlag = value.visited;
 		}
-		if (value.destinations != null) {
+		if (value.destinations.size() > destinations.size()) {
 		    destinations = value.destinations;
 		}
             }

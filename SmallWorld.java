@@ -44,19 +44,24 @@ public class SmallWorld {
     // Maximum depth for any breadth-first search
     public static final int MAX_ITERATIONS = 20;
     // flags for vertices 
-    private static final int NOT_VISITED = 0;
-    private static final int UNKNOWN = -1;
+    private static final int DISTANCE = 0;
+    private static final int FLAG = 1;
 
+    private static final long NOT_VISITED = 0L;
+    private static final long VISITED = 1L;
+
+    private static final int UNKNOWN = -1;
+    private static final int KNOWN = 1;
     // Example writable type
     public static class VertexValueWritable implements Writable {
 
         public ArrayList<Long> destinations; 
-	public HashMap<Long, Long> distances;
+	    public HashMap<Long, Long[]> distances;
         public int visited;
         private int length;
-	private int startNodes;
+	    private int startNodes;
 
-        public VertexValueWritable(ArrayList<Long> destinations, HashMap<Long, Long> distances, int visited) {
+        public VertexValueWritable(ArrayList<Long> destinations, HashMap<Long, Long[]> distances, int visited) {
             this.distances = distances;
             this.destinations = destinations;
             this.visited = visited;
@@ -69,7 +74,8 @@ public class SmallWorld {
         // Serializes object - needed for Writable
         public void write(DataOutput out) throws IOException {
             out.writeInt(visited);
-            length = 0; startNodes = 0;
+            length = 0; 
+            startNodes = 0;
 
             if (destinations != null){
                 length = destinations.size();
@@ -85,7 +91,8 @@ public class SmallWorld {
 	        out.writeInt(startNodes);
 	        for (Long node : distances.keySet()) {
 		      out.writeLong(node);
-		      out.writeLong(distances.get(node));
+		      out.writeLong(distances.get(node)[0]);
+              out.writeLong(distances.get(node)[1]);
 	        }  
         }
 
@@ -103,7 +110,8 @@ public class SmallWorld {
 	       this.startNodes = in.readInt();
 	       for (int i = 0; i < startNodes; i++) {
 		      Long source = in.readLong();
-		      distances.put(source, in.readLong());
+              Long[] array = {in.readLong(), in.readLong()};
+		      distances.put(source, array);
 	        }
         }
 
@@ -143,7 +151,7 @@ public class SmallWorld {
         public void reduce(LongWritable key, Iterable<LongWritable> values, 
             Context context) throws IOException, InterruptedException {
             ArrayList<Long> destinations = new ArrayList<Long>();
-	    HashMap<Long, Long> distances = new HashMap<Long, Long>();
+	        HashMap<Long, Long> distances = new HashMap<Long, Long[]>();
             for (LongWritable value : values){            
                 destinations.add(value.get());   
             }
@@ -171,22 +179,32 @@ public class SmallWorld {
                 denom = Long.parseLong(context.getConfiguration().get("denom"));
                 double prob = Math.random();
 		        if (prob <= (1 / (double)denom)) {
-		          value.distances.put(key.get(), 0L);
-		          context.write(key, new VertexValueWritable(value.destinations, value.distances, NOT_VISITED));//startnode
+                  Long[] arr = {0L, NOT_VISITED};
+		          value.distances.put(key.get(), arr);
+		          context.write(key, new VertexValueWritable(value.destinations, value.distances, KNOWN));//startnode
 		        } else {
-		          context.write(key, value);
+		          context.write(key, new VertexValueWritable(value.destinations, value.distances, KNOWN));
 		        }
-		//	    } else if (value.visited == NOT_VISITED) {
 	        } else {
-		      context.write(key, new VertexValueWritable(value.destinations, value.distances, value.visited));
-		      HashMap<Long, Long> newDistances = new HashMap<Long, Long>();
-		      for (Long node : value.distances.keySet()) {
-		          newDistances.put(node, value.distances.get(node) + 1);
-		      }
-		      for (Long n : value.destinations) {
-		          context.write(new LongWritable(n), new VertexValueWritable(null, newDistances, NOT_VISITED));
-		      }
-	        }
+                HashMap<Long, Long[]> visitedMap = new HashMap<Long, Long[]>();
+                HashMap<Long, Long[]> notVisitedMap = new HashMap<Long, Long[]>();
+                for (Long source : value.distances.keySet()) {
+                    Long[] dist = value.distances.get(source);
+                    if (dist[FLAG] == NOT_VISITED) {
+                        Long[] notArr = {dist[DISTANCE] + 1, NOT_VISITED};
+                        notVisitedMap.put(source, notArr);
+                    }
+                    Long[] visitedArr = {dist[DISTANCE], VISITED};
+                    visitedMap.put(source, visitedArr);
+                }
+                context.write(key, new VertexValueWritable(value.destinations, visitedMap, KNOWN));
+                if (!notVisitedMap.isEmpty()) {
+                    for (Long n : value.destinations) {
+                        context.write(new LongWritable(n), new VertexValueWritable(null, notVisitedMap, KNOWN));
+                    }
+                }
+            }
+	
 	    }
     }
 
@@ -200,30 +218,29 @@ public class SmallWorld {
         public void reduce(LongWritable key, Iterable<VertexValueWritable> values, 
             Context context) throws IOException, InterruptedException {
             //System.out.println("BFSReduce\n=====\nKey: " + key.get());
-            int maxFlag = -1;
-            ArrayList<Long> destinations = new ArrayList<Long>();
-	        HashMap<Long, Long> distances = new HashMap<Long, Long>();
-
-            for (VertexValueWritable value : values) {
-                //System.out.println("Value: " + value.toString());
-
-		      for (Long node : value.distances.keySet()) {
-		          if (distances.containsKey(node)) {
-			         if (value.distances.get(node) < distances.get(node)) {
-			             distances.put(node, value.distances.get(node));
-			         }            
-		          } else {
-			      distances.put(node, value.distances.get(node));
-		          }
-		        }
-		      if (value.visited > maxFlag) {
-		          maxFlag = value.visited;
-		       }
-		      if (value.destinations.size() > destinations.size()) {
-		          destinations = value.destinations;
-		       }
+            HashMap<Long, Long[]> reduceMap = new HashMap<Long, Long[]>();
+            ArrayList<Long> reduceDestinations;
+            for (VertexValueWritable v : values) {
+                if (v.destinations != null) {
+                    reduceDestinations = v.destinations;
+                }
+                for (Long source : v.distances.keySet()) {
+                    if (reduceMap.containsKey(source)) {
+                        Long[] reduceDist = reduceMap.get(source);
+                        Long[] curDist = v.distances.get(source);
+                        if (reduceDist[DISTANCE] > curDist[DISTANCE]) {
+                            reduce[DISTANCE] = curDist[DISTANCE];
+                        }
+                        if (curDist[FLAG] == VISITED) {
+                            reduce[FLAG] == VISITED;
+                        }
+                        reduceMap.put(source, reduceDist);
+                    } else {
+                        reduceMap.put(source, v.distances.get(source));
+                    }
+                }
             }
-            context.write(key, new VertexValueWritable(destinations, distances, maxFlag));
+            context.write(key, new VertexValueWritable(reduceDestinations, reduceMap, KNOWN));
         }
     }
 
@@ -236,7 +253,7 @@ public class SmallWorld {
         public void map(LongWritable key, VertexValueWritable value, Context context)
                 throws IOException, InterruptedException {
 	        for (Long node : value.distances.keySet()) {
-		      context.write(new LongWritable(value.distances.get(node)), new LongWritable(1L));
+		      context.write(new LongWritable(value.distances.get(node)[DISTANCE]), new LongWritable(1L));
 	        }
 	    }
     }

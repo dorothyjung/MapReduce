@@ -295,6 +295,7 @@ public class SmallWorld {
         Job job = new Job(conf, "load graph");
 
         job.setJarByClass(SmallWorld.class);
+        job.setNumReduceTasks(24);
 
         job.setMapOutputKeyClass(LongWritable.class);
         job.setMapOutputValueClass(LongWritable.class);
@@ -319,6 +320,7 @@ public class SmallWorld {
         while (i < MAX_ITERATIONS) {
             job = new Job(conf, "bfs" + i);
             job.setJarByClass(SmallWorld.class);
+            job.setNumReduceTasks(24) // CHANGE to 4*Number of Machinese
 
             // Feel free to modify these four lines as necessary:
             job.setMapOutputKeyClass(LongWritable.class);
@@ -346,6 +348,7 @@ public class SmallWorld {
         // Mapreduce config for histogram computation
         job = new Job(conf, "hist");
         job.setJarByClass(SmallWorld.class);
+        job.setNumReduceTasks(1); // DO NOT CHANGE
 
         // Feel free to modify these two lines as necessary:
         job.setMapOutputKeyClass(LongWritable.class);

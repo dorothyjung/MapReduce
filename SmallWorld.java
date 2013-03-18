@@ -170,21 +170,21 @@ public class SmallWorld {
 	    System.out.println("BFSMap\n=======\nKey: " + key.get() +  "\nValue: " + value.toString());
 	    if (value.visited == UNKNOWN) {
 		denom = Long.parseLong(context.getConfiguration().get("denom"));
-		if (Math.random() < 1 / denom) {
+		if (Math.random() < (double)(1 / denom)) {
 		    value.distances.put(key.get(), 0L);
-		    context.write(key, new VertexValueWritable(value.destinations, value.distances, 0));//startnode
+		    context.write(key, new VertexValueWritable(value.destinations, value.distances, NOT_VISITED));//startnode
 		} else {
 		    context.write(key, value);
 		}
 	    } else if (value.visited == NOT_VISITED) {		
-		context.write(key, new VertexValueWritable(value.destinations, value.distances, 1));
+		context.write(key, new VertexValueWritable(value.destinations, value.distances, VISITED));
 		
 		HashMap<Long, Long> newDistances = new HashMap<Long, Long>();
 		for (Long node : value.distances.keySet()) {
 		    newDistances.put(node, value.distances.get(node) + 1);
 		}
 		for (Long n : value.destinations) {
-		    context.write(new LongWritable(n), new VertexValueWritable(null, newDistances, 0));
+		    context.write(new LongWritable(n), new VertexValueWritable(null, newDistances, NOT_VISITED));
 		}
 	    } else {
 		context.write(key, value);

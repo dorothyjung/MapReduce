@@ -174,7 +174,7 @@ public class SmallWorld {
         @Override
         public void map(LongWritable key, VertexValueWritable value, Context context)
 	    throws IOException, InterruptedException {
-	       //System.out.println("BFSMap\n=======\nKey: " + key.get() +  "\nValue: " + value.toString());
+	       System.out.println("BFSMap\n=======\nKey: " + key.get() +  "\nValue: " + value.toString());
 	       if (value.visited == UNKNOWN) {
                 denom = Long.parseLong(context.getConfiguration().get("denom"));
                 double prob = Math.random();
@@ -217,9 +217,9 @@ public class SmallWorld {
         
         public void reduce(LongWritable key, Iterable<VertexValueWritable> values, 
             Context context) throws IOException, InterruptedException {
-            //System.out.println("BFSReduce\n=====\nKey: " + key.get());
+            System.out.println("BFSReduce\n=====\nKey: " + key.get());
             HashMap<Long, Long[]> reduceMap = new HashMap<Long, Long[]>();
-            ArrayList<Long> reduceDestinations;
+            ArrayList<Long> reduceDestinations = new ArrayList<Long>();
             for (VertexValueWritable v : values) {
                 if (v.destinations != null) {
                     reduceDestinations = v.destinations;

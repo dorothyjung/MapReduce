@@ -42,7 +42,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
 
 public class SmallWorld {
     // Maximum depth for any breadth-first search
-    public static final int MAX_ITERATIONS = 25;
+    public static final int MAX_ITERATIONS = 20;
     // flags for vertices 
     private static final int DISTANCE = 0;
     private static final int FLAG = 1;

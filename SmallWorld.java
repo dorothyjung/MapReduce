@@ -232,7 +232,7 @@ public class SmallWorld {
                             reduce[DISTANCE] = curDist[DISTANCE];
                         }
                         if (curDist[FLAG] == VISITED) {
-                            reduce[FLAG] == VISITED;
+                            reduce[FLAG] = VISITED;
                         }
                         reduceMap.put(source, reduceDist);
                     } else {

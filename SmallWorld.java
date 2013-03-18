@@ -259,7 +259,9 @@ public class SmallWorld {
         public void map(LongWritable key, VertexValueWritable value, Context context)
                 throws IOException, InterruptedException {
 	        for (Long node : value.distances.keySet()) {
-		      context.write(new LongWritable(value.distances.get(node)[DISTANCE]), new LongWritable(1L));
+              if (value.distances.get(node)[FLAG] == VISITED) {
+		          context.write(new LongWritable(value.distances.get(node)[DISTANCE]), new LongWritable(1L));
+              }
 	        }
 	    }
     }

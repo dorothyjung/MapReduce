@@ -120,7 +120,7 @@ public class SmallWorld {
             String stringRep = "\nNode\n======\nVisited: " + visited
 		      + "\nDistances: [";
             for (Long n : distances.keySet()) {
-                stringRep = stringRep + n + "=[" + distances.get(n)[0] + "," distances.get(n)[1] + "], ";
+                stringRep = stringRep + n + "=[" + distances.get(n)[0] + ","+ distances.get(n)[1] + "], ";
             }  
             stringRep = stringRep + "]\nDestinations: [";
             for (int i = 0; i < length; i++) {

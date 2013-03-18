@@ -101,11 +101,7 @@ public class SmallWorld {
             this.visited = in.readInt();
             this.length = in.readInt();
             this.destinations = new ArrayList<Long>(length);
-<<<<<<< HEAD
-	    this.distances = new HashMap<Long, Long>();
-=======
 	        this.distances = new HashMap<Long, Long[]>();
->>>>>>> 056fb6a1e8d7ddd24e96de178a4e889cf467a1d0
 
             for(int i = 0; i < length; i++){
                 destinations.add(in.readLong());

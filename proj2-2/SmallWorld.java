@@ -295,7 +295,7 @@ public class SmallWorld {
         Job job = new Job(conf, "load graph");
 
         job.setJarByClass(SmallWorld.class);
-        job.setNumReduceTasks(24); // CHANGE to 4*Number of machines
+        job.setNumReduceTasks(48); // CHANGE to 4*Number of machines
 
         job.setMapOutputKeyClass(LongWritable.class);
         job.setMapOutputValueClass(LongWritable.class);
@@ -320,7 +320,7 @@ public class SmallWorld {
         while (i < MAX_ITERATIONS) {
             job = new Job(conf, "bfs" + i);
             job.setJarByClass(SmallWorld.class);
-            job.setNumReduceTasks(24); // CHANGE to 4*Number of Machines
+            job.setNumReduceTasks(48); // CHANGE to 4*Number of Machines
 
             // Feel free to modify these four lines as necessary:
             job.setMapOutputKeyClass(LongWritable.class);

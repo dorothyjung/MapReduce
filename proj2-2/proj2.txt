@@ -1,8 +1,9 @@
 1. Clusters    Time    Searches    Reducers
    ========================================
-       6  
+<<<<<<< HEAD
+       6    00:58:37  7             24
        9    28:00 	  13			36
-       12	36:08	  13
+       12	36:08	  13            48
 2. Distances (Cluster Size:):
 	50th:
 	90th:

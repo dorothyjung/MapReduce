@@ -1,8 +1,8 @@
 1. Clusters    Time    Searches    Reducers
    ========================================
        6  
-       9    28 minutes	  13			36
-       12	23:14:26
+       9    28:00 	  13			36
+       12	36:08	  13
 2. Distances (Cluster Size:):
 	50th:
 	90th:
@@ -20,4 +20,4 @@
 	6 clusters:
 	9 clusters:
 	12 clusters:
-7. Dollars used:
+7. Dollars used: 44.20

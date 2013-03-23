@@ -1,6 +1,5 @@
 1. Clusters    Time    Searches    Reducers
    ========================================
-<<<<<<< HEAD
        6    00:58:37  7             24
        9    28:00 	  13			36
        12	36:08	  13            48
@@ -16,7 +15,10 @@
 	9:
 	12:
 	Conclusion:
-5.
+5. Combiners in Hadoop act as a kind of "mini-Reducer" in that it decreases the number of (key, value) pairs that are passed as input into the Reduce phase of MapReduce. The crucial part of implementing this is reducing the intermediate values so that it will produce the same output for the Reduce phase. For Loader, our Mapper is simply an identity function, while our Reducer creates a list of destinations for each source node. We can add a Combiner to this step, combining the values of the individual (source, dest) pairs, since we will be creating a list that consists of all the values collected from the pairs. (What effect on performance?)
+
+For BFS, our Reducer will 
+
 6. Price per GB processed ($0.68 per hour rounded to nearest hour):
 	6 clusters:
 	9 clusters:

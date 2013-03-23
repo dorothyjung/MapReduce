@@ -1,20 +1,20 @@
 1. Clusters    Time    Searches    Reducers
    ========================================
-       6    00:58:37  7             24
-       9    28:00 	  13			36
+       6    00:58:37	  7             24
+       9    28:00 	  13		36
        12	36:08	  13            48
-2. Distances (Cluster Size:):
-	50th:
-	90th:
-	95th:
+2. Distances (Cluster Size: 12):
+	50th: 4
+	90th: 5
+	95th: 5
 3. Mean Processing Rate:
-	6 clusters:
-	9 clusters:
-	12 clusters
+	6 clusters: .53 MB/s
+	9 clusters: 2.1 MB/s
+	12 clusters 1.6 MB/s
 4. Speedup in comparison to 6 clusters:
-	9:
-	12:
-	Conclusion:
+	9: 52% speedup
+	12: 38% speedup
+	Conclusion: It parallelizes my work very well to an extent. While 9 clusters works faster than 6 and probably any cluster size below that, 12 clusters is too large and starts to show a decline in performance. This is an example of weak scaling.
 5.
 6. Price per GB processed ($0.68 per hour rounded to nearest hour):
 	6 clusters:

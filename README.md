@@ -32,8 +32,8 @@ All nodes will be marked with visited? = -1 and contain empty Distances HashMaps
 
 ## BFS
 ### BFSMap  
-*Input: (source, [[destinations]|[<source1, dist>...<sourceN, dist>]|visited?])  
-*Output: (source, [[destinations]|[<source1, dist>...<sourceN, dist>]|visited?])
+*Input: (source, [[destinations]|[<source1, dist, visited>...<sourceN, dist, visited>]|known?])  
+*Output: (source, [[destinations]|[<source1, dist, visited>...<sourceN, dist, visited>]|known?])
 
 NEW ALGORITHM:
 
@@ -56,8 +56,8 @@ Since we don't know how many nodes in total there are, or what the destination n
 
 
 ### BFSReduce
-*Input: (source, [[destinations]|min dist to source|visited?])  
-*Output: (source, [[destinations]|min dist to source|visited?])
+*Input: (source, [[destinations]|[<source1, dist, visited>...<sourceN, dist, visited>]|known?])  
+*Output: (source, [[destinations]|[<source1, dist, visited>...<sourceN, dist, visited>]|known?])
 
 BFSReduce has 3 priorities in mind to output (key, value) pairs
 -a non-null list of destination nodes

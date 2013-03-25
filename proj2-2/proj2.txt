@@ -1,8 +1,8 @@
 1. Clusters    Time    Searches    Reducers
    ========================================
-       6    00:58:37	  7             24
-       9    28:00 	  13		36
-       12	36:08	  13            48
+       6    59 minutes	  7             24
+       9    28 minutes	  13		36
+       12   36 minutes	  13            48
 2. Distances (Cluster Size: 12):
 	50th: 4
 	90th: 5
@@ -14,14 +14,19 @@
 4. Speedup in comparison to 6 clusters:
 	9: 52% speedup
 	12: 38% speedup
-	Conclusion: It parallelizes my work very well to an extent. While 9 clusters works faster than 6 and probably any cluster size below that, 12 clusters is too large and starts to show a decline in performance. This is an example of weak scaling.
+	Conclusion: It parallelizes my work very well to an extent. Due to the probability of choosing the number of searches to run, 12 clusters ran fewer searches than needed to take advantage of the increased cluster size. This means that while the overhead to start the machines increased due to the number of instances being run, it did not have the opportunity to amortize the start up costs amongst the searches being run, which led to an overall slower run time and less speedup for the 12 cluster run overall. While 9 clusters works faster than 6 and probably any cluster size below that, 12 clusters is too large and starts to show a decline in performance. This is an example of weak scaling.
 
-5. Combiners in Hadoop act as a kind of "mini-Reducer" in that it decreases the number of (key, value) pairs that are passed as input into the Reduce phase of MapReduce. The crucial part of implementing this is reducing the intermediate values so that it will produce the same output for the Reduce phase. For Loader, our Mapper is simply an identity function, while our Reducer creates a list of destinations for each source node. We can add a Combiner to this step, combining the values of the individual (source, dest) pairs, since we will be creating a list that consists of all the values collected from the pairs. (What effect on performance?)
+5.
+Combiners in Hadoop act as a kind of "mini-Reducer" in that it decreases the number of (key, value) pairs that are passed as input into the Reduce phase of MapReduce. The crucial part of implementing this is reducing the intermediate values so that it will produce the same output for the Reduce phase while limiting the work that the Reduce actually has to do.
 
-For BFS, our Reducer will 
+For Loader, our Mapper is simply an identity function, while our Reducer creates a list of destinations for each source node. We can add a Combiner to the step right before the (key, value) pairs are passed to the Reducer, gathering the destinations for each individual source node and creating mini-lists that consist of the values collected from the pairs on a given machine. Then all of these mini-lists can be passed from the individual machines to output only 1 (key, value) pair per source node in the Reduce step. This would improve performance by decreasing the number of pairs passed into LoadReduce and decreasing the amount of work done for Reduce overall.
+
+For BFS, our Reducer takes in (key, value) pairs with the source node ID as the key, and as the value: list of destinations, HashMap of <starting node, dist from starting node, visited flag> tuples, and a boolean indicating whether or not we are on the 1st iteration. The Reducer has 3 priorities in mind when outputting (key, value) pairs; 1. non-empty list of destination nodes, 2. minimum distance to each starting node in the HashMap, 3. the node has been visited. In this step, we can simply compare the inputted (key, value) pairs on one machine, consolidating multiple pairs with the same key by making comparisons before all of the pairs on all of the machines are passed into the Reducer.
+
+For the last MapReduce, we simply map each distance from the inputted pair to 1, while ignoring the rest of the data from the input pair. In the combiner, we can accumulate the number of 1s before we pass the (key, value) pairs from each machine into HistoReduce. So we are creating mini-lists much like we did for LoadReduce, so that HistoReduce receives less data to go through since we have partially merged data with the same keys already in the combiner. 
 
 6. Price per GB processed ($0.68 per hour rounded to nearest hour):
-	6 clusters:
-	9 clusters:
-	12 clusters:
+	6 clusters: $2.18/GB
+	9 clusters: $1.73/GB
+	12 clusters: $3.36/GB
 7. Dollars used: 44.20
